@@ -1,8 +1,8 @@
 {
   "name": "vue3-json-source-viewer",
-  "version": "2.2.3",
-  "description": "vuejs展示json的组件,适配vue3, 支持图片字段弹窗展示(blob, image url support)",
-  "main": "dist/bundle.esm.js",
+  "version": "2.2.4",
+  "description": "Vue.js JSON viewer component, compatible with vue3, image browsing supported.",
+  "main": "dist/bundle.cjs.js",
   "module": "dist/bundle.esm.js",
   "types": "dist/bundle.d.ts",
   "style": "dist/index.css",
@@ -23,7 +23,7 @@
   "bugs": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SmartCodeDavid/vue3-json-viewer"
+    "url": "git+https://github.com/SmartCodeDavid/vue3-json-source-viewer"
   },
   "devDependencies": {
     "@babel/core": "^7.11.1",
