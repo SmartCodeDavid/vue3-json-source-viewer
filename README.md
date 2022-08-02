@@ -1,4 +1,4 @@
-# vue3-json-viewer
+# vue3-json-source-viewer
 
 [中文版](readme_cn.md)
 

@@ -1,4 +1,4 @@
-# vue3-json-viewer
+# vue3-json-source-viewer
 
 版本1：简单易用的json内容展示组件,适配vue3和vite。  
 <mark style="background-color: orange">原作者1：</mark> [github](https://github.com/chenfengjw163/vue-json-viewer)
