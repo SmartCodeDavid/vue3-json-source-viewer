@@ -6,8 +6,10 @@ import commonjs from "@rollup/plugin-commonjs"
 import css from 'rollup-plugin-css-only' // 提取css，压缩能力不行
 import CleanCSS from 'clean-css' // 压缩css
 import { writeFileSync } from 'fs' // 写文件
+import { terser } from 'rollup-plugin-terser'
 import pkg from './package.json'
 // import svg from 'rollup-plugin-vue-inline-svg';
+import dts from "rollup-plugin-dts";
 const extensions = [".js"];
 
 
