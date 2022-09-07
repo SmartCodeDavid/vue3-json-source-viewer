@@ -1,8 +1,8 @@
 {
   "name": "vue3-json-source-viewer",
-  "version": "2.2.7",
+  "version": "2.2.9",
   "description": "Vue.js JSON viewer component, compatible with vue3, image browsing supported.",
-  "main": "dist/bundle.esm.js",
+  "main": "dist/bundle.cjs.js",
   "module": "dist/bundle.esm.js",
   "types": "dist/bundle.d.ts",
   "style": "dist/index.css",

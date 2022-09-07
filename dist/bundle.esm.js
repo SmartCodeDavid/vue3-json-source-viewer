@@ -1516,9 +1516,3 @@ var install = function install(app) {
 var index = { install: install };
 
 export { script as JsonViewer, index as default };
-onent(script.name, script);
-};
-var index = { install: install };
-
-exports.JsonViewer = script;
-exports["default"] = index;
