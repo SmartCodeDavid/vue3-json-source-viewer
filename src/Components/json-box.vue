@@ -94,8 +94,6 @@ export default {
       dataType = JsonFunction;
     }
     if (this.value?.constructor === RegExp) {
-      // console.log("type", this.value.constructor === RegExp);
-      // this.value=this.value.toString()
       dataType = JsonRegexp;
     }
     // array or object will be folded, sign with jv-toggle class
@@ -105,8 +103,7 @@ export default {
       (Array.isArray(this.value) ||
         (typeof this.value === "object" &&
           Object.prototype.toString.call(this.value) !== "[object Date]"));
-    // toggle icon button
-    if (!this.previewMode && complex) {
+    if (complex) {
       elements.push(
         h("span", {
           class: {
@@ -147,11 +144,9 @@ export default {
         "onUpdate:expand": (value) => {
           this.expand = value;
         },
-        // "onUpdate:popup": (value) => {
-        //   debugger;
-        //   this.popup = value;
-        //   console.log("onUpdate:popup", this.originalValue);
-        // },
+        "onUpdate:popup": (value) => {
+          this.popup = value;
+        },
       })
     );
 
@@ -161,7 +156,7 @@ export default {
         class: {
           "jv-node": true,
           "jv-key-node": Boolean(this.keyName) && !complex,
-          toggle: !this.previewMode && complex,
+          toggle: complex,
         },
       },
       elements

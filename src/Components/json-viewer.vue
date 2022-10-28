@@ -1,14 +1,18 @@
 <template>
   <div :class="jvClass">
-    <div v-if="copyable" :class="`jv-tooltip ${copyText.align || 'right'}`">
-      <span ref="clip" class="jv-button" :class="{ copied }">
-        <slot name="copy" :copied="copied">
-          {{ copied ? copyText.copiedText : copyText.copyText }}
-        </slot>
-      </span>
+    <div class="header-action">
+      <div v-if="copyable" :class="`jv-tooltip ${copyText.align || 'right'}`">
+        <span ref="clip" class="jv-button" :class="{ copied }">
+          <slot name="copy" :copied="copied">
+            {{ copied ? copyText.copiedText : copyText.copyText }}
+          </slot>
+        </span>
+      </div>
+      <div class="jv-button collapses" @click="more">{{ isShowMore ? 'collapses' : 'expands' }}</div>
     </div>
     <div class="jv-code" :class="{ open: expandCode, boxed }">
       <json-box
+        :key="localKey"
         ref="jsonBox"
         :value="value"
         :sort="sort"
@@ -75,10 +79,6 @@ export default {
       type: Function,
       default: (value) => value.toLocaleString(),
     },
-    previewMode: {
-      type: Boolean,
-      default: false,
-    },
     allowImageShow: {
       type: Boolean,
       default: false,
@@ -94,10 +94,13 @@ export default {
   data() {
     return {
       copied: false,
+      previewMode: false,
       expandableCode: false,
       expandCode: this.expanded,
       showPopup: false,
+      localKey: 0,
       imgeSrc: "",
+      isShowMore: false,
     };
   },
   emits: ["onKeyClick"],
@@ -124,31 +127,41 @@ export default {
     },
   },
   mounted: function () {
-    this.debounceResized = debounce(this.debResized.bind(this), 200);
-    if (this.boxed && this.$refs.jsonBox) {
-      this.onResized();
-      this.$refs.jsonBox.$el.addEventListener("resized", this.onResized, true);
-      this.$refs.jsonBox.$el.addEventListener("jvImgPopup", this.onPopup, true);
-    }
-    if (this.copyable) {
-      const clipBoard = new Clipboard(this.$refs.clip, {
-        text: () => {
-          return JSON.stringify(this.value, null, 2);
-        },
-      });
-      clipBoard.on("success", (e) => {
-        this.onCopied(e);
-      });
-    }
+    this.reset();
   },
   methods: {
+    reset() {
+      this.debounceResized = debounce(this.debResized.bind(this), 200);
+      if (this.boxed && this.$refs.jsonBox) {
+        this.onResized();
+        this.$refs.jsonBox.$el.addEventListener("resized", this.onResized, true);
+        this.$refs.jsonBox.$el.addEventListener("jvImgPopup", this.onPopup, true);
+      }
+      if (this.copyable) {
+        const clipBoard = new Clipboard(this.$refs.clip, {
+          text: () => {
+            return JSON.stringify(this.value, null, 2);
+          },
+        });
+        clipBoard.on("success", (e) => {
+          this.onCopied(e);
+        });
+      } 
+    },
+    more () {
+      this.localKey += 1;
+      this.previewMode = !this.previewMode;
+      this.isShowMore = !this.isShowMore;
+      this.$nextTick(() => {
+        this.reset();
+      })
+    },
     closePopup() {
       this.showPopup = !this.showPopup;
       this.imgeSrc = "";
     },
     onPopup(e) {
       // mime_type needed to identify a blob or img url
-      console.log("jvImgPopup", e);
       const obj = e.detail;
       const source = checkIslegalURL(obj.uri)
         ? obj.uri
@@ -245,10 +258,10 @@ export default {
   user-select: none;
 }
 .jv-container.jv-light .jv-button {
-  color: #49b3ff;
+  color: #32c8cd;
 }
 .jv-container.jv-dark .jv-button {
-  color: #49b3ff;
+  color: #32c8cd;
 }
 .jv-container.jv-light .jv-key {
   color: #111111;
@@ -361,12 +374,7 @@ export default {
   height: 100%;
   overflow: scroll;
 }
-.jv-container .jv-code.open {
-  /* max-height: initial !important;
-  overflow: visible;
-  overflow-x: auto;
-  padding-bottom: 45px; */
-}
+
 .jv-container .jv-toggle {
   background-image: url(./icon.svg);
   background-repeat: no-repeat;
@@ -441,18 +449,20 @@ export default {
   opacity: 0.4;
   cursor: default;
 }
-.jv-container .jv-tooltip {
-  position: absolute;
-}
-.jv-container .jv-tooltip.right {
-  right: 15px;
-}
-.jv-container .jv-tooltip.left {
-  left: 15px;
+.jv-container .jv-button.collapses {
+  margin-left: 4px;
 }
 .jv-container .j-icon {
   font-size: 12px;
 }
+
+.header-action {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  padding-right: 5px;
+}
+
 .jv-image-popup {
   display: flex;
   flex-direction: column;

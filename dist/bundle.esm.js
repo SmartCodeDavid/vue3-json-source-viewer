@@ -1,4 +1,4 @@
-import { h, resolveComponent, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createTextVNode, toDisplayString, createCommentVNode, createVNode, withModifiers } from 'vue';
+import { h, resolveComponent, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createTextVNode, toDisplayString, createCommentVNode, createBlock, withModifiers } from 'vue';
 
 function _typeof(obj) {
   "@babel/helpers - typeof";
@@ -210,7 +210,7 @@ var script$7 = {
     },
     render: function render() {
         var elements = [];
-        if (!this.previewMode && !this.keyName) {
+        if (!this.keyName) {
             elements.push(h('span', {
                 'class': {
                     'jv-toggle': true,
@@ -326,7 +326,7 @@ var script$6 = {
     render: function render() {
         var _this2 = this;
         var elements = [];
-        if (!this.previewMode && !this.keyName) {
+        if (!this.keyName) {
             elements.push(h('span', {
                 'class': {
                     'jv-toggle': true,
@@ -672,7 +672,7 @@ var script$1 = {
             dataType = script$3;
         }
         var complex = this.keyName && this.value && (Array.isArray(this.value) || _typeof(this.value) === 'object' && Object.prototype.toString.call(this.value) !== '[object Date]');
-        if (!this.previewMode && complex) {
+        if (complex) {
             elements.push(h('span', {
                 'class': {
                     'jv-toggle': true,
@@ -702,13 +702,16 @@ var script$1 = {
             originalValue: this.originalValue,
             'onUpdate:expand': function onUpdateExpand(value) {
                 _this.expand = value;
+            },
+            'onUpdate:popup': function onUpdatePopup(value) {
+                _this.popup = value;
             }
         }));
         return h('div', {
             'class': {
                 'jv-node': true,
                 'jv-key-node': Boolean(this.keyName) && !complex,
-                toggle: !this.previewMode && complex
+                toggle: complex
             }
         }, elements);
     }
@@ -1338,10 +1341,6 @@ var script = {
                 return value.toLocaleString();
             }
         },
-        previewMode: {
-            type: Boolean,
-            'default': false
-        },
         allowImageShow: {
             type: Boolean,
             'default': false
@@ -1357,10 +1356,13 @@ var script = {
     data: function data() {
         return {
             copied: false,
+            previewMode: false,
             expandableCode: false,
             expandCode: this.expanded,
             showPopup: false,
-            imgeSrc: ''
+            localKey: 0,
+            imgeSrc: '',
+            isShowMore: false
         };
     },
     emits: ['onKeyClick'],
@@ -1384,31 +1386,42 @@ var script = {
         }
     },
     mounted: function mounted() {
-        var _this = this;
-        this.debounceResized = debounce(this.debResized.bind(this), 200);
-        if (this.boxed && this.$refs.jsonBox) {
-            this.onResized();
-            this.$refs.jsonBox.$el.addEventListener('resized', this.onResized, true);
-            this.$refs.jsonBox.$el.addEventListener('jvImgPopup', this.onPopup, true);
-        }
-        if (this.copyable) {
-            var clipBoard = new Clipboard(this.$refs.clip, {
-                text: function text() {
-                    return JSON.stringify(_this.value, null, 2);
-                }
-            });
-            clipBoard.on('success', function (e) {
-                _this.onCopied(e);
-            });
-        }
+        this.reset();
     },
     methods: {
+        reset: function reset() {
+            var _this = this;
+            this.debounceResized = debounce(this.debResized.bind(this), 200);
+            if (this.boxed && this.$refs.jsonBox) {
+                this.onResized();
+                this.$refs.jsonBox.$el.addEventListener('resized', this.onResized, true);
+                this.$refs.jsonBox.$el.addEventListener('jvImgPopup', this.onPopup, true);
+            }
+            if (this.copyable) {
+                var clipBoard = new Clipboard(this.$refs.clip, {
+                    text: function text() {
+                        return JSON.stringify(_this.value, null, 2);
+                    }
+                });
+                clipBoard.on('success', function (e) {
+                    _this.onCopied(e);
+                });
+            }
+        },
+        more: function more() {
+            var _this2 = this;
+            this.localKey += 1;
+            this.previewMode = !this.previewMode;
+            this.isShowMore = !this.isShowMore;
+            this.$nextTick(function () {
+                _this2.reset();
+            });
+        },
         closePopup: function closePopup() {
             this.showPopup = !this.showPopup;
             this.imgeSrc = '';
         },
         onPopup: function onPopup(e) {
-            console.log('jvImgPopup', e);
             var obj = e.detail;
             var source = checkIslegalURL(obj.uri) ? obj.uri : base64toBlob(obj.blob);
             this.imgeSrc = source;
@@ -1418,14 +1431,14 @@ var script = {
             this.debounceResized();
         },
         debResized: function debResized() {
-            var _this2 = this;
+            var _this3 = this;
             this.$nextTick(function () {
-                if (!_this2.$refs.jsonBox)
+                if (!_this3.$refs.jsonBox)
                     return;
-                if (_this2.$refs.jsonBox.$el.clientHeight >= 250) {
-                    _this2.expandableCode = true;
+                if (_this3.$refs.jsonBox.$el.clientHeight >= 250) {
+                    _this3.expandableCode = true;
                 } else {
-                    _this2.expandableCode = false;
+                    _this3.expandableCode = false;
                 }
             });
         },
@@ -1433,13 +1446,13 @@ var script = {
             this.$emit('onKeyClick', keyName);
         },
         onCopied: function onCopied(copyEvent) {
-            var _this3 = this;
+            var _this4 = this;
             if (this.copied) {
                 return;
             }
             this.copied = true;
             setTimeout(function () {
-                _this3.copied = false;
+                _this4.copied = false;
             }, this.copyText.timeout);
             this.$emit('copied', copyEvent);
         },
@@ -1449,27 +1462,36 @@ var script = {
     }
 };
 
-var _hoisted_1 = {
-    key: 1,
+var _hoisted_1 = { 'class': 'header-action' };
+var _hoisted_2 = {
+    key: 0,
     'class': 'jv-image-popup'
 };
-var _hoisted_2 = { 'class': 'show-area' };
-var _hoisted_3 = ['src'];
+var _hoisted_3 = { 'class': 'show-area' };
+var _hoisted_4 = ['src'];
 function render(_ctx, _cache, $props, $setup, $data, $options) {
     var _component_json_box = resolveComponent('json-box');
     return openBlock(), createElementBlock('div', { 'class': normalizeClass($options.jvClass) }, [
-        $props.copyable ? (openBlock(), createElementBlock('div', {
-            key: 0,
-            'class': normalizeClass('jv-tooltip '.concat($options.copyText.align || 'right'))
-        }, [createElementVNode('span', {
-                ref: 'clip',
-                'class': normalizeClass([
-                    'jv-button',
-                    { copied: $data.copied }
-                ])
-            }, [renderSlot(_ctx.$slots, 'copy', { copied: $data.copied }, function () {
-                    return [createTextVNode(toDisplayString($data.copied ? $options.copyText.copiedText : $options.copyText.copyText), 1)];
-                })], 2)], 2)) : createCommentVNode('v-if', true),
+        createElementVNode('div', _hoisted_1, [
+            $props.copyable ? (openBlock(), createElementBlock('div', {
+                key: 0,
+                'class': normalizeClass('jv-tooltip '.concat($options.copyText.align || 'right'))
+            }, [createElementVNode('span', {
+                    ref: 'clip',
+                    'class': normalizeClass([
+                        'jv-button',
+                        { copied: $data.copied }
+                    ])
+                }, [renderSlot(_ctx.$slots, 'copy', { copied: $data.copied }, function () {
+                        return [createTextVNode(toDisplayString($data.copied ? $options.copyText.copiedText : $options.copyText.copyText), 1)];
+                    })], 2)], 2)) : createCommentVNode('v-if', true),
+            createElementVNode('div', {
+                'class': 'jv-button collapses',
+                onClick: _cache[0] || (_cache[0] = function () {
+                    return $options.more && $options.more.apply($options, arguments);
+                })
+            }, toDisplayString($data.isShowMore ? 'collapses' : 'expands'), 1)
+        ]),
         createElementVNode('div', {
             'class': normalizeClass([
                 'jv-code',
@@ -1478,28 +1500,29 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                     boxed: $props.boxed
                 }
             ])
-        }, [createVNode(_component_json_box, {
+        }, [(openBlock(), createBlock(_component_json_box, {
+                key: $data.localKey,
                 ref: 'jsonBox',
                 value: $props.value,
                 sort: $props.sort,
-                'preview-mode': $props.previewMode,
+                'preview-mode': $data.previewMode,
                 'allow-image-show': $props.allowImageShow
             }, null, 8, [
                 'value',
                 'sort',
                 'preview-mode',
                 'allow-image-show'
-            ])], 2),
+            ]))], 2),
         createCommentVNode(' <div\n      v-if="expandableCode && boxed"\n      class="jv-more"\n      @click="toggleExpandCode"\n    >\n      <span class="jv-toggle" :class="{ open: !!expandCode }" />\n    </div> '),
-        $data.showPopup ? (openBlock(), createElementBlock('div', _hoisted_1, [createElementVNode('div', _hoisted_2, [
+        $data.showPopup ? (openBlock(), createElementBlock('div', _hoisted_2, [createElementVNode('div', _hoisted_3, [
                 createElementVNode('img', {
                     'class': 'jv-image',
                     src: $data.imgeSrc,
                     alt: ''
-                }, null, 8, _hoisted_3),
+                }, null, 8, _hoisted_4),
                 createElementVNode('div', {
                     'class': 'close-btn',
-                    onClick: _cache[0] || (_cache[0] = withModifiers(function () {
+                    onClick: _cache[1] || (_cache[1] = withModifiers(function () {
                         return $options.closePopup && $options.closePopup.apply($options, arguments);
                     }, ['stop']))
                 }, '+')

@@ -70,7 +70,7 @@ export default {
   },
   render () {
     let elements = []
-    if (!this.previewMode && !this.keyName) {
+    if (!this.keyName) {
       elements.push(h('span', {
         class: {
           'jv-toggle': true,
