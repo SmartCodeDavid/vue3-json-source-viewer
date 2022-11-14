@@ -8,7 +8,7 @@
           </slot>
         </span>
       </div>
-      <div class="jv-button collapses" @click="more">{{ isShowMore ? 'collapses' : 'expands' }}</div>
+      <div class="jv-button collapses" @click="more">{{ isShowMore ? 'collapse' : 'expand' }}</div>
     </div>
     <div class="jv-code" :class="{ open: expandCode, boxed }">
       <json-box
