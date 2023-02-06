@@ -1490,7 +1490,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                 onClick: _cache[0] || (_cache[0] = function () {
                     return $options.more && $options.more.apply($options, arguments);
                 })
-            }, toDisplayString($data.isShowMore ? 'collapses' : 'expands'), 1)
+            }, toDisplayString($data.isShowMore ? 'collapse' : 'expand'), 1)
         ]),
         createElementVNode('div', {
             'class': normalizeClass([

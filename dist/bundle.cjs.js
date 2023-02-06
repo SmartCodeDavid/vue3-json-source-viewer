@@ -1494,7 +1494,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                 onClick: _cache[0] || (_cache[0] = function () {
                     return $options.more && $options.more.apply($options, arguments);
                 })
-            }, vue.toDisplayString($data.isShowMore ? 'collapses' : 'expands'), 1)
+            }, vue.toDisplayString($data.isShowMore ? 'collapse' : 'expand'), 1)
         ]),
         vue.createElementVNode('div', {
             'class': vue.normalizeClass([
